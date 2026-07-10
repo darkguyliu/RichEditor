@@ -3,6 +3,7 @@ import SwiftUI
 struct ComposeView: View {
     @ObservedObject var viewModel: ComposeViewModel
     @Environment(\.dismiss) private var dismiss
+    @State private var isAttachmentPickerPresented = false
 
     var body: some View {
         NavigationView {
@@ -23,6 +24,15 @@ struct ComposeView: View {
                 HStack(alignment: .bottom, spacing: 8) {
                     RichTextEditor(viewModel: viewModel)
                         .frame(minHeight: 38, maxHeight: 120)
+                    Button {
+                        isAttachmentPickerPresented = true
+                    } label: {
+                        Image(systemName: "paperclip")
+                            .foregroundColor(.secondary)
+                            .frame(width: 34, height: 34)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Attach file")
                     Button {
                         Task {
                             viewModel.submit()
@@ -47,6 +57,9 @@ struct ComposeView: View {
             }
             .navigationTitle("New Message")
             .navigationBarTitleDisplayMode(.inline)
+            .sheet(isPresented: $isAttachmentPickerPresented) {
+                AttachmentPicker(attachments: $viewModel.attachments)
+            }
         }
     }
 }
@@ -73,27 +86,22 @@ struct QuoteBlockView: View {
 
 struct AttachmentRowView: View {
     @Binding var attachments: [MessageAttachment]
+    @State private var isPickerPresented = false
+
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
                 ForEach(attachments) { attachment in
-                    HStack(spacing: 6) {
-                        Image(systemName: "doc.fill").font(.caption)
-                        Text(attachment.fileName).font(.caption2)
-                        Button {
-                            attachments.removeAll { $0.id == attachment.id }
-                        } label: {
-                            Image(systemName: "xmark.circle.fill").font(.caption2)
-                        }
+                    AttachmentChip(attachment: attachment) {
+                        attachments.removeAll { $0.id == attachment.id }
                     }
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color(.systemGray6))
-                    .cornerRadius(8)
                 }
             }
             .padding(.horizontal, 12)
         }
         .padding(.vertical, 4)
+        .sheet(isPresented: $isPickerPresented) {
+            AttachmentPicker(attachments: $attachments)
+        }
     }
 }
