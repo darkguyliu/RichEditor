@@ -12,6 +12,14 @@ final class RichTextEditorCoordinator: NSObject, UITextViewDelegate {
         Task { @MainActor in
             viewModel?.attributedContent = textView.attributedText
         }
+        // @ mention detection
+        let text = textView.text as NSString
+        let cursor = textView.selectedRange.location
+        if let query = MentionDetector().detectMentionQuery(in: text, cursorPosition: cursor) {
+            Task { @MainActor in viewModel?.mentionQuery = query }
+        } else {
+            Task { @MainActor in viewModel?.mentionQuery = nil }
+        }
     }
 
     func textView(_ textView: UITextView,
