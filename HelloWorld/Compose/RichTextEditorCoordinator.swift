@@ -6,6 +6,19 @@ final class RichTextEditorCoordinator: NSObject, UITextViewDelegate {
 
     init(viewModel: ComposeViewModel) {
         self.viewModel = viewModel
+        super.init()
+        NotificationCenter.default.addObserver(self, selector: #selector(switchToEmojiKeyboard),
+            name: .emojiPickerRequested, object: nil)
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
+    @objc private func switchToEmojiKeyboard() {
+        // Switch UITextView keyboard to emoji
+        // Will be wired to the actual UITextView in Task 13 via a stored reference
+        // For now: the notification fires; emoji keyboard integration is manual
     }
 
     func textViewDidChange(_ textView: UITextView) {

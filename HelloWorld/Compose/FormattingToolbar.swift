@@ -37,6 +37,8 @@ struct FormattingToolbar: View {
                 .buttonStyle(.plain)
                 .accessibilityLabel("Insert table")
                 .padding(.horizontal, 2)
+                ToolbarDivider()
+                EmojiPickerButton()
             }
             .padding(.horizontal, 8)
         }
