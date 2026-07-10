@@ -71,7 +71,7 @@ struct TextFormatApplierTests {
 
         // Make only "hel" bold (first 3 chars)
         let partialRange = NSRange(location: 0, length: 3)
-        applier.toggle(.bold, in: storage, partialRange)
+        applier.toggle(.bold, in: storage, range: partialRange)
 
         // Now toggle bold on the full range (partial coverage → apply to all)
         applier.toggle(.bold, in: storage, range: fullRange)
