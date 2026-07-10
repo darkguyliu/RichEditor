@@ -26,6 +26,12 @@ final class RichTextEditorCoordinator: NSObject, UITextViewDelegate {
                 return false
             }
         }
+        // Tab navigates between table cells (advance to next | position)
+        if text == "\t" {
+            // Minimal implementation: insert 4 spaces (table cells are pipe-separated)
+            textView.insertText("    ")
+            return false
+        }
         // Detect @ for mention typeahead (future Task 12 — no-op for now)
         return true
     }

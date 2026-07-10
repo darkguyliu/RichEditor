@@ -19,7 +19,24 @@ struct FormattingToolbar: View {
                 // Bullet list and Numbered list use custom action (not TextFormat enum — they're list styles)
                 ListStyleButton(icon: "list.bullet", label: "Bullet list", style: .bullet, viewModel: viewModel)
                 ListStyleButton(icon: "list.number", label: "Numbered list", style: .numbered, viewModel: viewModel)
-                // Additional buttons are stubs for Phase 2 (no-op taps)
+                ToolbarDivider()
+                FormatButton(icon: "chevron.left.slash.chevron.right", format: .inlineCode, viewModel: viewModel)
+                    .accessibilityLabel("Code")
+                // Table button is a special action, not a TextFormat
+                Button {
+                    // Insert 2x2 table template
+                    // Stores pending action in viewModel for RichTextEditor to observe (Phase 2 stub)
+                    viewModel.pendingTableInsert = true
+                } label: {
+                    Image(systemName: "tablecells")
+                        .font(.system(size: 15, weight: .medium))
+                        .frame(width: 34, height: 34)
+                        .foregroundColor(.secondary)
+                        .cornerRadius(4)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Insert table")
+                .padding(.horizontal, 2)
             }
             .padding(.horizontal, 8)
         }

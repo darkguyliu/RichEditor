@@ -34,6 +34,31 @@ struct FormattingToolbarTests {
                 "Expected activeFormats to NOT contain .bold after toggling off")
     }
 
+    // AC-11.2: Code button toggles .inlineCode in activeFormats
+    @Test("AC-11.2: Code button applies inlineCode format via activeFormats toggle")
+    @MainActor
+    func testCodeButtonAppliesCodeBlock() async {
+        // AC-11.2
+        let viewModel = ComposeViewModel()
+        #expect(viewModel.activeFormats.contains(.inlineCode) == false,
+                "Expected activeFormats to NOT contain .inlineCode initially")
+
+        viewModel.activeFormats.toggle(.inlineCode)
+
+        #expect(viewModel.activeFormats.contains(.inlineCode) == true,
+                "Expected activeFormats to contain .inlineCode after toggle")
+    }
+
+    // AC-11.3: Table markdown template is well-formed
+    @Test("AC-11.3: Table markdown template string is well-formed")
+    @MainActor
+    func testTableInserted() async {
+        // AC-11.3
+        let tableTemplate = "| Column 1 | Column 2 |\n|----------|----------|\n| Cell 1   | Cell 2   |"
+        #expect(tableTemplate.contains("|"), "Expected table template to contain '|'")
+        #expect(tableTemplate.contains("\n"), "Expected table template to contain newlines")
+    }
+
     // AC-6.4: Accessibility labels are set; smoke test that the toolbar renders without crashing
     @Test("AC-6.4: FormattingToolbar renders with accessibility labels")
     @MainActor

@@ -127,6 +127,20 @@ struct MarkdownAttributedStringConverterTests {
         #expect(result.hasPrefix("> "), "Expected '> ' prefix, got: \(result)")
     }
 
+    // AC-11.1: Code block paragraph wrapped in ``` fences
+    @Test("AC-11.1: Code block NSAttributedString → triple-backtick fence in Markdown")
+    func testCodeBlockToMarkdown() {
+        // AC-11.1
+        let str = NSMutableAttributedString(string: "print(\"hello\")")
+        str.addAttribute(
+            MarkdownAttributedStringConverter.codeBlockKey,
+            value: true,
+            range: NSRange(location: 0, length: str.length)
+        )
+        let result = converter.toMarkdown(str)
+        #expect(result.contains("```"), "Expected triple-backtick fence in: \(result)")
+    }
+
     // Extra: malformed markdown falls back to plain text
     @Test("Malformed markdown falls back to plain text without crashing")
     func testMalformedMarkdownFallback() {

@@ -11,6 +11,7 @@ final class ComposeViewModel: ObservableObject {
     @Published var linkPreviews: [String] = []   // simplified: just URLs as strings for now
     @Published var mentionQuery: String? = nil
     @Published var messages: [RichMessage] = []   // the feed
+    @Published var pendingTableInsert: Bool = false
 
     private let converter = MarkdownAttributedStringConverter()
 
