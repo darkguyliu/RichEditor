@@ -8,7 +8,8 @@ final class ComposeViewModel: ObservableObject {
     @Published var activeFormats: Set<TextFormat> = []
     @Published var attachments: [MessageAttachment] = []
     @Published var quotedMessage: RichMessage? = nil
-    @Published var linkPreviews: [String] = []   // simplified: just URLs as strings for now
+    @Published var linkPreviews: [LinkPreview] = []
+    private var dismissedURLs: Set<URL> = []
     @Published var mentionQuery: String? = nil
     @Published var messages: [RichMessage] = []   // the feed
     @Published var pendingTableInsert: Bool = false
@@ -55,6 +56,34 @@ final class ComposeViewModel: ObservableObject {
 
     func resolveMarkdown() -> String {
         return converter.toMarkdown(attributedContent)
+    }
+
+    func detectAndFetchLinkPreview(in text: String) async {
+        // 0.8s debounce — caller should cancel previous task
+        try? await Task.sleep(nanoseconds: 800_000_000)
+        guard let url = LinkDetector().firstURL(in: text) else { return }
+        guard !dismissedURLs.contains(url) else { return }
+        let fetcher = LinkPreviewFetcher()
+        do {
+            let preview = try await fetcher.fetch(url: url)
+            linkPreviews = [preview]
+            // Emit analytics
+            AnalyticsLogger.track(AnalyticsEvent(
+                name: "link_preview_fetched",
+                properties: ["success": true, "platform": "ios"]
+            ))
+        } catch {
+            // No card on failure, no crash
+            AnalyticsLogger.track(AnalyticsEvent(
+                name: "link_preview_fetched",
+                properties: ["success": false, "platform": "ios"]
+            ))
+        }
+    }
+
+    func dismissLinkPreview(_ preview: LinkPreview) {
+        dismissedURLs.insert(preview.url)
+        linkPreviews.removeAll { $0.url == preview.url }
     }
 
     private func updateActiveFormats(in textStorage: NSTextStorage, at range: NSRange) {

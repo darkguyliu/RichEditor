@@ -14,6 +14,12 @@ struct ComposeView: View {
                         viewModel.quotedMessage = nil
                     }
                 }
+                // Link preview cards — visible when link previews are present
+                ForEach(viewModel.linkPreviews, id: \.url) { preview in
+                    LinkPreviewCard(preview: preview) {
+                        viewModel.dismissLinkPreview(preview)
+                    }
+                }
                 // Attachment row — visible when attachments non-empty
                 if !viewModel.attachments.isEmpty {
                     AttachmentRowView(attachments: $viewModel.attachments)

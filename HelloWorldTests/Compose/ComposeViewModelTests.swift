@@ -56,6 +56,22 @@ struct ComposeViewModelTests {
         #expect(result == "", "Expected empty string from resolveMarkdown() when content is empty, got: '\(result)'")
     }
 
+    // AC-16.4: Given dismissLinkPreview() is called for a preview
+    //          Then linkPreviews is empty and that URL is excluded from future fetches
+    @Test("AC-16.4: Dismissed link preview is removed from linkPreviews")
+    @MainActor
+    func testDismissedURLNotRefetched() async {
+        // AC-16.4
+        let vm = ComposeViewModel()
+        let url = URL(string: "https://example.com")!
+        let preview = LinkPreview(url: url, title: nil, description: nil)
+
+        vm.dismissLinkPreview(preview)
+
+        #expect(vm.linkPreviews.isEmpty,
+                "Expected linkPreviews to be empty after dismissLinkPreview, got: \(vm.linkPreviews.count) items")
+    }
+
     // AC-7.4: Given 3 attachments in attachments When submit() is called
     //         Then the new RichMessage.attachments contains exactly 3 items
     @Test("AC-7.4: Attachments are preserved in the submitted RichMessage")
