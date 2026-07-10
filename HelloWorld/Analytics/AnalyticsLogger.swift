@@ -7,6 +7,8 @@ struct AnalyticsEvent {
 
 enum AnalyticsLogger {
     static func track(_ event: AnalyticsEvent) {
-        // No-op stub — wired in a later task
+        #if DEBUG
+        print("[Analytics] \(event.name): \(event.properties)")
+        #endif
     }
 }

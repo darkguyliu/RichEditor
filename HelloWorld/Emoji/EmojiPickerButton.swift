@@ -10,6 +10,10 @@ struct EmojiPickerButton: View {
     var body: some View {
         Button {
             NotificationCenter.default.post(name: .emojiPickerRequested, object: nil)
+            AnalyticsLogger.track(AnalyticsEvent(
+                name: "emoji_picker_opened",
+                properties: ["platform": "ios"]
+            ))
         } label: {
             Text("😊")
                 .font(.system(size: 18))

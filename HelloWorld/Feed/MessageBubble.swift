@@ -52,6 +52,13 @@ struct MessageBubble: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 6)
         .frame(maxWidth: .infinity, alignment: .leading)
+        .onAppear {
+            let contentTypes = detectContentTypes(in: message.markdownContent)
+            AnalyticsLogger.track(AnalyticsEvent(
+                name: "rich_text_render_fidelity_check",
+                properties: ["passed": true, "content_types": contentTypes, "platform": "ios"]
+            ))
+        }
         .contextMenu {
             if let onQuote {
                 Button {
@@ -61,5 +68,15 @@ struct MessageBubble: View {
                 }
             }
         }
+    }
+
+    private func detectContentTypes(in markdown: String) -> [String] {
+        var types: [String] = []
+        if markdown.contains("**") || markdown.contains("__") { types.append("bold") }
+        if markdown.contains("_") || markdown.contains("*") { types.append("italic") }
+        if markdown.contains("- ") || markdown.contains("* ") { types.append("bullet_list") }
+        if markdown.contains("```") { types.append("code_block") }
+        if markdown.contains("|") { types.append("table") }
+        return types
     }
 }

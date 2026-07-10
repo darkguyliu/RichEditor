@@ -22,6 +22,17 @@ struct TextFormatApplier {
         } else {
             applyFormat(format, in: storage, range: range)
         }
+
+        let formatName: String
+        switch format {
+        case .bold: formatName = "bold"
+        case .italic: formatName = "italic"
+        case .inlineCode: formatName = "inline_code"
+        }
+        AnalyticsLogger.track(AnalyticsEvent(
+            name: "rich_text_format_applied",
+            properties: ["format": formatName, "platform": "ios"]
+        ))
     }
 
     // MARK: - Private
