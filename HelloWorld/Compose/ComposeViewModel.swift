@@ -32,7 +32,11 @@ final class ComposeViewModel: ObservableObject {
     }
 
     func submit() {
-        let markdownContent = converter.toMarkdown(attributedContent)
+        var markdownContent = converter.toMarkdown(attributedContent)
+        if let quoted = quotedMessage {
+            let quotedText = String(quoted.markdownContent.prefix(80))
+            markdownContent = "> \(quotedText)\n\n" + markdownContent
+        }
         let msg = RichMessage(
             id: UUID(),
             markdownContent: markdownContent,

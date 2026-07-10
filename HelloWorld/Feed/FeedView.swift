@@ -8,8 +8,10 @@ struct FeedView: View {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 2) {
                     ForEach(viewModel.messages) { msg in
-                        MessageBubble(message: msg)
-                            .id(msg.id)
+                        MessageBubble(message: msg, onQuote: { quotedMsg in
+                            viewModel.quotedMessage = quotedMsg
+                        })
+                        .id(msg.id)
                     }
                 }
                 .padding(.vertical, 12)

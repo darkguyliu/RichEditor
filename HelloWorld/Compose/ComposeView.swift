@@ -64,26 +64,7 @@ struct ComposeView: View {
     }
 }
 
-// MARK: - Stub views (replaced in Tasks 15 and 14 respectively)
-struct QuoteBlockView: View {
-    let message: RichMessage
-    let onRemove: () -> Void
-    var body: some View {
-        HStack {
-            Rectangle().fill(Color(red: 0.384, green: 0.392, blue: 0.655)).frame(width: 3)
-            VStack(alignment: .leading, spacing: 2) {
-                Text("Quoting").font(.caption).foregroundColor(Color(red: 0.384, green: 0.392, blue: 0.655))
-                Text(message.markdownContent).font(.caption).foregroundColor(.secondary).lineLimit(2)
-            }
-            Spacer()
-            Button(action: onRemove) { Image(systemName: "xmark").font(.caption) }
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 6)
-        .background(Color(red: 0.961, green: 0.961, blue: 0.988))
-    }
-}
-
+// MARK: - Attachment row view
 struct AttachmentRowView: View {
     @Binding var attachments: [MessageAttachment]
     @State private var isPickerPresented = false

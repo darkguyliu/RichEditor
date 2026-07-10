@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MessageBubble: View {
     let message: RichMessage
+    var onQuote: ((RichMessage) -> Void)? = nil  // optional — nil hides context menu
 
     private var attributedBody: AttributedString {
         (try? AttributedString(
@@ -51,5 +52,14 @@ struct MessageBubble: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 6)
         .frame(maxWidth: .infinity, alignment: .leading)
+        .contextMenu {
+            if let onQuote {
+                Button {
+                    onQuote(message)
+                } label: {
+                    Label("Quote", systemImage: "quote.bubble")
+                }
+            }
+        }
     }
 }
