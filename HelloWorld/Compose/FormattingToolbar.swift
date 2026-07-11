@@ -57,9 +57,13 @@ private struct FormatButton: View {
 
     var body: some View {
         Button {
-            // Formatting is applied from the toolbar via viewModel;
-            // actual NSTextStorage mutation happens via RichTextEditor's selection
-            viewModel.activeFormats.toggle(format)
+            // Delegates to the coordinator callback, which applies the format to the current
+            // NSTextStorage selection (or toggles mark-ahead intent when nothing is selected).
+            if let callback = viewModel.applyFormattingCallback {
+                callback(format)
+            } else {
+                viewModel.activeFormats.toggle(format)
+            }
         } label: {
             Image(systemName: icon)
                 .font(.system(size: 15, weight: .medium))

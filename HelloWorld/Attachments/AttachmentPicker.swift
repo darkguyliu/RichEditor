@@ -33,7 +33,8 @@ final class AttachmentPickerCoordinator: NSObject, UIDocumentPickerDelegate {
         let attachment = MessageAttachment(
             id: UUID(),
             mimeType: mimeType,
-            fileName: url.lastPathComponent
+            fileName: url.lastPathComponent,
+            temporaryURL: url   // picker uses asCopy:true → url is a sandbox-scoped copy
         )
         DispatchQueue.main.async { [weak self] in
             self?.attachments.append(attachment)

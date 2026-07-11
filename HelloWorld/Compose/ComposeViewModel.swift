@@ -16,6 +16,10 @@ final class ComposeViewModel: ObservableObject {
 
     private let converter = MarkdownAttributedStringConverter()
 
+    /// Set by `RichTextEditorCoordinator` once the UITextView is available.
+    /// Applies formatting to the current selection (or toggles mark-ahead when no text is selected).
+    var applyFormattingCallback: ((TextFormat) -> Void)?
+
     func applyFormatting(_ format: TextFormat, to textStorage: NSTextStorage, range: NSRange) {
         let applier = TextFormatApplier()
         applier.toggle(format, in: textStorage, range: range)
@@ -59,15 +63,19 @@ final class ComposeViewModel: ObservableObject {
     }
 
     func detectAndFetchLinkPreview(in text: String) async {
-        // 0.8s debounce — caller should cancel previous task
-        try? await Task.sleep(nanoseconds: 800_000_000)
+        // 0.8s debounce — caller must cancel the previous Task before creating a new one.
+        // Use `try await` (not `try?`) so CancellationError propagates and exits early.
+        do {
+            try await Task.sleep(nanoseconds: 800_000_000)
+        } catch {
+            return  // task was cancelled; do not fetch
+        }
         guard let url = LinkDetector().firstURL(in: text) else { return }
         guard !dismissedURLs.contains(url) else { return }
         let fetcher = LinkPreviewFetcher()
         do {
             let preview = try await fetcher.fetch(url: url)
             linkPreviews = [preview]
-            // Emit analytics
             AnalyticsLogger.track(AnalyticsEvent(
                 name: "link_preview_fetched",
                 properties: ["success": true, "platform": "ios"]

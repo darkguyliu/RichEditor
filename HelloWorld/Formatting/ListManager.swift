@@ -14,7 +14,7 @@ struct ListManager {
         let paragraphRange = nsString.paragraphRange(for: NSRange(location: cursorLocation, length: 0))
 
         // Get attributes at the start of the paragraph
-        guard paragraphRange.length > 0 || paragraphRange.location < textStorage.length else {
+        guard paragraphRange.length > 0, paragraphRange.location < textStorage.length else {
             return false
         }
 

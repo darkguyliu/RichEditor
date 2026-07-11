@@ -1,7 +1,10 @@
 import Foundation
 import LinkPresentation
 
-actor LinkPreviewFetcher {
+// @MainActor ensures LPMetadataProvider.startFetchingMetadata is called on the main thread,
+// which is required by Apple's LinkPresentation framework.
+@MainActor
+final class LinkPreviewFetcher {
     func fetch(url: URL) async throws -> LinkPreview {
         let provider = LPMetadataProvider()
         provider.timeout = 3.0

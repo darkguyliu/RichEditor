@@ -2,6 +2,7 @@ import UIKit
 
 final class RichTextEditorCoordinator: NSObject, UITextViewDelegate {
     weak var viewModel: ComposeViewModel?
+    weak var textView: UITextView?
     var listManager = ListManager()
 
     init(viewModel: ComposeViewModel) {
@@ -9,6 +10,20 @@ final class RichTextEditorCoordinator: NSObject, UITextViewDelegate {
         super.init()
         NotificationCenter.default.addObserver(self, selector: #selector(switchToEmojiKeyboard),
             name: .emojiPickerRequested, object: nil)
+    }
+
+    /// Call from RichTextEditor.makeUIView after setting self.textView.
+    func setupFormattingCallback() {
+        viewModel?.applyFormattingCallback = { [weak self] format in
+            guard let self, let textView = self.textView, let viewModel = self.viewModel else { return }
+            let range = textView.selectedRange
+            if range.length > 0 {
+                viewModel.applyFormatting(format, to: textView.textStorage, range: range)
+            } else {
+                // No selection: toggle mark-ahead intent so the next typed char uses the format
+                viewModel.activeFormats.toggle(format)
+            }
+        }
     }
 
     deinit {
