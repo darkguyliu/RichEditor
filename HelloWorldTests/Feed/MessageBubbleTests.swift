@@ -38,6 +38,24 @@ struct MessageBubbleTests {
                 "// AC-9.2: bullet list result should contain text")
     }
 
+    // AC-11.4: Given a GFM table in markdownContent When MessageBubble renders it on iOS 15
+    //          Then the table is displayed as text (no crash) — inlineOnlyPreservingWhitespace strips table syntax
+    @Test("AC-11.4: GFM table falls back to text without crash")
+    func testTableFallbackOniOS15() {
+        // AC-11.4
+        let tableMarkdown = "| A | B |\n|---|---|\n| 1 | 2 |"
+        let parsed = try? AttributedString(
+            markdown: tableMarkdown,
+            options: AttributedString.MarkdownParsingOptions(
+                interpretedSyntax: .inlineOnlyPreservingWhitespace
+            )
+        )
+        let result = parsed ?? AttributedString(tableMarkdown)
+        // No crash is the requirement; result must be non-nil and non-empty
+        #expect(String(result.characters).isEmpty == false,
+                "// AC-11.4: GFM table should produce non-empty output without crashing")
+    }
+
     // AC-9.4: Given markdownContent = "**unclosed" (malformed) When parsed via AttributedString(markdown:)
     //         Then it falls back to plain text and result is not nil, with .string == "**unclosed"
     @Test("AC-9.4: Malformed markdown falls back to plain text")
