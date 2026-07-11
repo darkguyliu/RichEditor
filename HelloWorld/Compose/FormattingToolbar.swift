@@ -1,9 +1,9 @@
 import SwiftUI
 
 // Teams purple #6264A7
-private let accentColor = Color(red: 0.384, green: 0.392, blue: 0.655)
+private let toolbarAccent = Color(red: 0.384, green: 0.392, blue: 0.655)
 // Active background #ebebf5
-private let accentLight = Color(red: 0.922, green: 0.922, blue: 0.961)
+private let toolbarAccentLight = Color(red: 0.922, green: 0.922, blue: 0.961)
 
 struct FormattingToolbar: View {
     @ObservedObject var viewModel: ComposeViewModel
@@ -64,8 +64,8 @@ private struct FormatButton: View {
             Image(systemName: icon)
                 .font(.system(size: 15, weight: .medium))
                 .frame(width: 34, height: 34)
-                .foregroundColor(isActive ? accentColor : .secondary)
-                .background(isActive ? accentLight : Color.clear)
+                .foregroundColor(isActive ? toolbarAccent : Color.secondary)
+                .background(isActive ? toolbarAccentLight : Color.clear)
                 .cornerRadius(4)
         }
         .buttonStyle(.plain)
