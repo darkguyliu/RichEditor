@@ -28,6 +28,52 @@ struct RichTextEditorTests {
                 "Expected viewModel.attributedContent.string to be 'hello', got: '\(viewModel.attributedContent.string)'")
     }
 
+    // Regression: applyFormattingCallback must sync attributedContent so updateUIView
+    // does NOT overwrite the formatted text on the next SwiftUI render pass (bold/italic revert bug).
+    @Test("Regression: bold callback syncs attributedContent so formatting is not reverted")
+    @MainActor
+    func testFormattingCallbackSyncsAttributedContent() async {
+        let viewModel = ComposeViewModel()
+        let coordinator = RichTextEditorCoordinator(viewModel: viewModel)
+        let textView = UITextView()
+        coordinator.textView = textView
+        coordinator.setupFormattingCallback()
+
+        let boldText = NSMutableAttributedString(string: "hello world")
+        textView.attributedText = boldText
+        textView.selectedRange = NSRange(location: 0, length: 5) // select "hello"
+
+        viewModel.applyFormattingCallback?(.bold)
+
+        // After callback, viewModel.attributedContent must equal the textView's current attributed text.
+        // If they are NOT equal, updateUIView would overwrite the UITextView and revert the bold.
+        #expect(viewModel.attributedContent == textView.attributedText,
+                "Expected attributedContent to match textView after bold applied — mismatch causes revert on next render")
+
+        // Verify bold trait was actually applied to range 0..<5
+        var hasBold = false
+        viewModel.attributedContent.enumerateAttribute(.font, in: NSRange(location: 0, length: 5)) { value, _, _ in
+            if let font = value as? UIFont, font.fontDescriptor.symbolicTraits.contains(.traitBold) {
+                hasBold = true
+            }
+        }
+        #expect(hasBold, "Expected bold trait in range 0..<5 after applying .bold format")
+    }
+
+    // Regression: toggleListCallback must be non-nil (list buttons were no-ops before this fix).
+    @Test("Regression: toggleListCallback is set after setupFormattingCallback")
+    @MainActor
+    func testToggleListCallbackIsWired() async {
+        let viewModel = ComposeViewModel()
+        let coordinator = RichTextEditorCoordinator(viewModel: viewModel)
+        let textView = UITextView()
+        coordinator.textView = textView
+        coordinator.setupFormattingCallback()
+
+        #expect(viewModel.toggleListCallback != nil,
+                "Expected toggleListCallback to be set — list buttons were no-ops without it")
+    }
+
     // AC-5.3: Given a UITextView with bullet list text "apple"
     //         When Enter is pressed at the end of the text
     //         Then ListManager handles it (returns false) and textView has 2 paragraphs

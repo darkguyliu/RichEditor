@@ -19,10 +19,21 @@ final class RichTextEditorCoordinator: NSObject, UITextViewDelegate {
             let range = textView.selectedRange
             if range.length > 0 {
                 viewModel.applyFormatting(format, to: textView.textStorage, range: range)
+                // Sync viewModel.attributedContent immediately so updateUIView's equality check
+                // does NOT overwrite the just-applied formatting on the next SwiftUI render pass.
+                viewModel.attributedContent = textView.attributedText
             } else {
                 // No selection: toggle mark-ahead intent so the next typed char uses the format
                 viewModel.activeFormats.toggle(format)
             }
+        }
+
+        viewModel?.toggleListCallback = { [weak self] style in
+            guard let self, let textView = self.textView, let viewModel = self.viewModel else { return }
+            let nsString = textView.text as NSString
+            let paragraphRange = nsString.paragraphRange(for: textView.selectedRange)
+            viewModel.toggleList(style, in: textView.textStorage, cursorParagraph: paragraphRange)
+            viewModel.attributedContent = textView.attributedText
         }
     }
 

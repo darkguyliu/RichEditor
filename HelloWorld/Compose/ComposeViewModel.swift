@@ -20,6 +20,9 @@ final class ComposeViewModel: ObservableObject {
     /// Applies formatting to the current selection (or toggles mark-ahead when no text is selected).
     var applyFormattingCallback: ((TextFormat) -> Void)?
 
+    /// Set by `RichTextEditorCoordinator`. Toggles a bullet or numbered list on the current paragraph.
+    var toggleListCallback: ((ListStyle) -> Void)?
+
     func applyFormatting(_ format: TextFormat, to textStorage: NSTextStorage, range: NSRange) {
         let applier = TextFormatApplier()
         applier.toggle(format, in: textStorage, range: range)

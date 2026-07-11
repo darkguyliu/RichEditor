@@ -85,7 +85,7 @@ private struct ListStyleButton: View {
 
     var body: some View {
         Button {
-            // No-op until ComposeView wires cursor paragraph (Task 8)
+            viewModel.toggleListCallback?(style)
         } label: {
             Image(systemName: icon)
                 .font(.system(size: 15, weight: .medium))
