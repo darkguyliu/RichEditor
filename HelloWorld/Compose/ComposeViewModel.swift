@@ -26,6 +26,9 @@ final class ComposeViewModel: ObservableObject {
     /// Set by `RichTextEditorCoordinator`. Inserts a 2×2 Markdown table template at the cursor.
     var insertTableCallback: (() -> Void)?
 
+    /// Set by `RichTextEditorCoordinator`. Replaces the current @query with the selected mention.
+    var insertMentionCallback: ((MentionCandidate) -> Void)?
+
     func applyFormatting(_ format: TextFormat, to textStorage: NSTextStorage, range: NSRange) {
         let applier = TextFormatApplier()
         applier.toggle(format, in: textStorage, range: range)

@@ -24,6 +24,16 @@ struct ComposeView: View {
                 if !viewModel.attachments.isEmpty {
                     AttachmentRowView(attachments: $viewModel.attachments)
                 }
+                // @mention typeahead — shown above toolbar when mentionQuery is active
+                if let query = viewModel.mentionQuery {
+                    let candidates = MentionStore().search(query)
+                    if !candidates.isEmpty {
+                        MentionTypeaheadOverlay(candidates: candidates) { candidate in
+                            viewModel.insertMentionCallback?(candidate)
+                        }
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                    }
+                }
                 // Formatting toolbar
                 FormattingToolbar(viewModel: viewModel)
                 // Input row + Send button

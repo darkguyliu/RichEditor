@@ -44,6 +44,24 @@ final class RichTextEditorCoordinator: NSObject, UITextViewDelegate {
             textView.insertText(template)
             viewModel.attributedContent = textView.attributedText
         }
+
+        viewModel?.insertMentionCallback = { [weak self] candidate in
+            guard let self,
+                  let textView = self.textView,
+                  let viewModel = self.viewModel,
+                  let query = viewModel.mentionQuery else { return }
+            let cursor = textView.selectedRange.location
+            // @query occupies (query.count + 1) characters ending at cursor
+            let atPosition = cursor - query.count - 1
+            guard atPosition >= 0 else { return }
+            let replaceRange = NSRange(location: atPosition, length: query.count + 1)
+            let replacement = "@\(candidate.displayName) "
+            textView.textStorage.replaceCharacters(in: replaceRange, with: replacement)
+            let newCursor = atPosition + replacement.count
+            textView.selectedRange = NSRange(location: newCursor, length: 0)
+            viewModel.mentionQuery = nil
+            viewModel.attributedContent = textView.attributedText
+        }
     }
 
     deinit {
