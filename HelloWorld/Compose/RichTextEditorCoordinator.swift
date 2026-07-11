@@ -35,16 +35,87 @@ final class RichTextEditorCoordinator: NSObject, UITextViewDelegate {
             viewModel.toggleList(style, in: textView.textStorage, cursorParagraph: paragraphRange)
             viewModel.attributedContent = textView.attributedText
         }
+
+        viewModel?.insertTableCallback = { [weak self] in
+            guard let textView = self?.textView, let viewModel = self?.viewModel else { return }
+            // Insert a 2×2 Markdown table template at the current cursor position.
+            // Leading newline ensures the table starts on its own paragraph.
+            let template = "\n| Header 1 | Header 2 |\n|---|---|\n| Cell | Cell |\n"
+            textView.insertText(template)
+            viewModel.attributedContent = textView.attributedText
+        }
     }
 
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
 
+    // MARK: - Emoji keyboard
+
     @objc private func switchToEmojiKeyboard() {
-        // Switch UITextView keyboard to emoji
-        // Will be wired to the actual UITextView in Task 13 via a stored reference
-        // For now: the notification fires; emoji keyboard integration is manual
+        guard let textView = textView else { return }
+        if textView.inputView == nil {
+            textView.inputView = makeEmojiInputView()
+        } else {
+            textView.inputView = nil   // toggle back to system keyboard
+        }
+        textView.becomeFirstResponder()
+        textView.reloadInputViews()
+    }
+
+    private func makeEmojiInputView() -> UIView {
+        let emojis: [String] = [
+            "😀","😂","🥰","😎","🤔","😭","🎉","🔥","💯","👍","❤️","🙌",
+            "😊","🤣","😅","😍","🤩","😜","🥳","💪","✅","⚡️","🚀","🌟",
+            "😢","😤","🤯","🙏","👏","🫶"
+        ]
+        let height: CGFloat = 220
+        let inputView = UIInputView(
+            frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: height),
+            inputViewStyle: .keyboard
+        )
+
+        let scroll = UIScrollView()
+        scroll.translatesAutoresizingMaskIntoConstraints = false
+        scroll.showsVerticalScrollIndicator = false
+        inputView.addSubview(scroll)
+        NSLayoutConstraint.activate([
+            scroll.leadingAnchor.constraint(equalTo: inputView.leadingAnchor, constant: 8),
+            scroll.trailingAnchor.constraint(equalTo: inputView.trailingAnchor, constant: -8),
+            scroll.topAnchor.constraint(equalTo: inputView.topAnchor, constant: 8),
+            scroll.bottomAnchor.constraint(equalTo: inputView.bottomAnchor, constant: -8)
+        ])
+
+        // 6-column grid
+        let cols = 6
+        let cellSize: CGFloat = 44
+        let rows = Int(ceil(Double(emojis.count) / Double(cols)))
+        let contentHeight = CGFloat(rows) * cellSize
+        let contentWidth = CGFloat(cols) * cellSize
+
+        scroll.contentSize = CGSize(width: contentWidth, height: contentHeight)
+
+        for (i, emoji) in emojis.enumerated() {
+            let col = i % cols
+            let row = i / cols
+            let btn = UIButton(type: .system)
+            btn.setTitle(emoji, for: .normal)
+            btn.titleLabel?.font = .systemFont(ofSize: 28)
+            btn.frame = CGRect(x: CGFloat(col) * cellSize, y: CGFloat(row) * cellSize,
+                               width: cellSize, height: cellSize)
+            btn.addAction(UIAction { [weak self] _ in self?.insertEmoji(emoji) }, for: .touchUpInside)
+            scroll.addSubview(btn)
+        }
+        return inputView
+    }
+
+    private func insertEmoji(_ emoji: String) {
+        guard let textView = textView, let viewModel = viewModel else { return }
+        textView.insertText(emoji)
+        // Return to system keyboard
+        textView.inputView = nil
+        textView.reloadInputViews()
+        viewModel.attributedContent = textView.attributedText
     }
 
     func textViewDidChange(_ textView: UITextView) {

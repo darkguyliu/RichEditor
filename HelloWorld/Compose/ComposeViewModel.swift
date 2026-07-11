@@ -23,6 +23,9 @@ final class ComposeViewModel: ObservableObject {
     /// Set by `RichTextEditorCoordinator`. Toggles a bullet or numbered list on the current paragraph.
     var toggleListCallback: ((ListStyle) -> Void)?
 
+    /// Set by `RichTextEditorCoordinator`. Inserts a 2×2 Markdown table template at the cursor.
+    var insertTableCallback: (() -> Void)?
+
     func applyFormatting(_ format: TextFormat, to textStorage: NSTextStorage, range: NSRange) {
         let applier = TextFormatApplier()
         applier.toggle(format, in: textStorage, range: range)

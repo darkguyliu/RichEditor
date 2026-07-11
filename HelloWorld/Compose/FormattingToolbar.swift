@@ -24,9 +24,7 @@ struct FormattingToolbar: View {
                     .accessibilityLabel("Code")
                 // Table button is a special action, not a TextFormat
                 Button {
-                    // Insert 2x2 table template
-                    // Stores pending action in viewModel for RichTextEditor to observe (Phase 2 stub)
-                    viewModel.pendingTableInsert = true
+                    viewModel.insertTableCallback?()
                 } label: {
                     Image(systemName: "tablecells")
                         .font(.system(size: 15, weight: .medium))
