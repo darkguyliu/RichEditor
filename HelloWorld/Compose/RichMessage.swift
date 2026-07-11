@@ -1,6 +1,6 @@
 import Foundation
 
-struct RichMessage: Identifiable {
+struct RichMessage: Identifiable, Equatable {
     let id: UUID
     let markdownContent: String
     let attachments: [MessageAttachment]
@@ -8,7 +8,7 @@ struct RichMessage: Identifiable {
     let createdAt: Date
 }
 
-struct MessageAttachment: Identifiable {
+struct MessageAttachment: Identifiable, Equatable {
     let id: UUID
     let mimeType: String     // e.g. "application/pdf"
     let fileName: String     // display name only

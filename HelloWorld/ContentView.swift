@@ -19,8 +19,15 @@ struct ContentView: View {
                         .accessibilityLabel("Compose message")
                     }
                 }
-                .sheet(isPresented: $isComposing) {
+                .sheet(isPresented: $isComposing, onDismiss: {
+                    // Clear quote if the sheet was dismissed without submitting
+                    viewModel.quotedMessage = nil
+                }) {
                     ComposeView(viewModel: viewModel)
+                }
+                // Auto-open compose when a message is quoted from the feed
+                .onChange(of: viewModel.quotedMessage) { quoted in
+                    if quoted != nil { isComposing = true }
                 }
         }
     }
